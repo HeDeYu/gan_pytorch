@@ -1,0 +1,83 @@
+image: 192.168.16.36:5000/cicd
+
+stages:
+  - lint
+  - test
+  - build
+  - deploy
+
+lint:
+  before_script:
+    - pyenv local 3.7.6
+    - python -V
+    - export LC_ALL=C.UTF-8
+    - export LANG=C.UTF-8
+  stage: lint
+  script:
+    - pip install -U pip
+    - pip install -e .[dev]
+    - pre-commit run -a
+    - tox -e gitlint -- --commits HEAD
+  tags:
+    - docker
+    - local
+
+test:
+  before_script:
+    - pyenv local 3.6.7 3.7.6 3.8.7
+    - python -V
+  stage: test
+  script:
+    - tox
+  tags:
+    - docker
+    - local
+
+build_docs:
+  before_script:
+    - pyenv local 3.7.6
+  stage: build
+  script:
+    - tox -e docs
+  artifacts:
+    paths:
+      - docs/_build
+    expire_in: 3 day
+  tags:
+    - docker
+    - local
+  only:
+    - tags
+
+build_repo:
+  stage: build
+  before_script:
+    - pyenv local 3.7.6
+  script:
+    - python setup.py sdist
+  artifacts:
+    paths:
+      - dist
+    expire_in: 3 day
+  tags:
+    - docker
+    - local
+  only:
+    - tags
+
+deploy:
+  before_script:
+    - pyenv local 3.7.6
+  stage: deploy
+  script:
+    - pip install twine
+    - twine upload dist/* -r devpi
+    - python setup.py upload_docs --upload-dir docs/_build -r devpi
+  dependencies:
+    - build_repo
+    - build_docs
+  tags:
+      - docker
+      - local
+  only:
+    - tags
