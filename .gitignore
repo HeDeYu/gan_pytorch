@@ -146,3 +146,5 @@ cython_debug/
 
 # Might be generated when you build wheels
 pip-wheel-metadata/
+tests/output/
+tests/test_data/
