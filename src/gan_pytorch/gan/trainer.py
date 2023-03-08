@@ -138,3 +138,5 @@ class Trainer(object):
             torchvision.utils.save_image(
                 g_outs[:25], f"{self.output_dir}/{epoch}.png", nrow=5, normalize=True
             )
+            torch.save(self.g, f"{self.output_dir}/g_{epoch}.pth")
+            torch.save(self.d, f"{self.output_dir}/d_{epoch}.pth")

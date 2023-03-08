@@ -10,8 +10,8 @@ gan_trainer = Trainer(
     0.0002,
     0.5,
     0.999,
-    epochs=20,
-    batch_size=32,
+    epochs=10,
+    batch_size=64,
     output_dir=output_dir,
 )
 gan_trainer.run()
