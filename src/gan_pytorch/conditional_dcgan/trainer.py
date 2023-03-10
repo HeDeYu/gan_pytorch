@@ -176,7 +176,7 @@ class Trainer(object):
                     logger.info(
                         f"iter {batch_idx}/{len(self.data_loader)}, epoch {epoch+1}/{self.epochs}"
                     )
-            if epoch % 1 == 0:
+            if True:
                 z_ = torch.autograd.Variable(
                     torch.FloatTensor(
                         np.random.normal(0, 1, (self.num_cls**2, self.z_dim, 1, 1))
