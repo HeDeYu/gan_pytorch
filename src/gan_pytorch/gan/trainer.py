@@ -7,6 +7,8 @@ from loguru import logger
 from torch.autograd import Variable
 from torch.utils.data import DataLoader
 
+from gan_pytorch.datasets.core import SimpleDataset
+
 from .model import Discriminator, Generator
 
 
@@ -63,17 +65,18 @@ class Trainer(object):
         )
 
         self.data_loader = DataLoader(
-            torchvision.datasets.MNIST(
-                "../../../tests/test_data",
-                train=True,
-                download=True,
-                transform=torchvision.transforms.Compose(
-                    [
-                        torchvision.transforms.ToTensor(),
-                        torchvision.transforms.Normalize((0.5,), (0.5,)),
-                    ]
-                ),
-            ),
+            dataset=SimpleDataset(r"D:\data\fg", include_patterns=["*.bmp"]),
+            # torchvision.datasets.MNIST(
+            #     "../../../tests/test_data",
+            #     train=True,
+            #     download=True,
+            #     transform=torchvision.transforms.Compose(
+            #         [
+            #             torchvision.transforms.ToTensor(),
+            #             torchvision.transforms.Normalize((0.5,), (0.5,)),
+            #         ]
+            #     ),
+            # ),
             batch_size=self.batch_size,
             shuffle=True,
             drop_last=True,
@@ -135,8 +138,13 @@ class Trainer(object):
                         f"iter {idx}/{len(self.data_loader)}, epoch {epoch+1}/{self.epochs}"
                     )
 
-            torchvision.utils.save_image(
-                g_outs[:25], f"{self.output_dir}/{epoch}.png", nrow=5, normalize=True
-            )
-            torch.save(self.g, f"{self.output_dir}/g_{epoch}.pth")
-            torch.save(self.d, f"{self.output_dir}/d_{epoch}.pth")
+            if epoch % 100 == 0:
+                torchvision.utils.save_image(
+                    g_outs[:25],
+                    f"{self.output_dir}/{epoch}.png",
+                    nrow=5,
+                    normalize=True,
+                    range=(-1, 1),
+                )
+                torch.save(self.g, f"{self.output_dir}/g_{epoch}.pth")
+                torch.save(self.d, f"{self.output_dir}/d_{epoch}.pth")
